@@ -55,7 +55,7 @@ catch_errors() {
 
 # This function handles errors
 error_handler() {
-  if [ -n "$SPINNER_PID" ] && ps -p $SPINNER_PID > /dev/null; then kill $SPINNER_PID > /dev/null; fi
+  if [ -n "$SPINNER_PID" ] && ps -p $SPINNER_PID >/dev/null; then kill $SPINNER_PID >/dev/null; fi
   printf "\e[?25h"
   local exit_code="$?"
   local line_number="$1"
@@ -78,7 +78,7 @@ spinner() {
 
   while true; do
     printf "\r ${color}%s${CL}" "${frames[spin_i]}"
-    spin_i=$(( (spin_i + 1) % ${#frames[@]} ))
+    spin_i=$(((spin_i + 1) % ${#frames[@]}))
     sleep "$interval"
   done
 }
@@ -93,7 +93,7 @@ msg_info() {
 
 # This function displays a success message with a green color.
 msg_ok() {
-  if [ -n "$SPINNER_PID" ] && ps -p $SPINNER_PID > /dev/null; then kill $SPINNER_PID > /dev/null; fi
+  if [ -n "$SPINNER_PID" ] && ps -p $SPINNER_PID >/dev/null; then kill $SPINNER_PID >/dev/null; fi
   printf "\e[?25h"
   local msg="$1"
   echo -e "${BFR}${CM}${GN}${msg}${CL}"
@@ -101,7 +101,7 @@ msg_ok() {
 
 # This function displays a error message with a red color.
 msg_error() {
-  if [ -n "$SPINNER_PID" ] && ps -p $SPINNER_PID > /dev/null; then kill $SPINNER_PID > /dev/null; fi
+  if [ -n "$SPINNER_PID" ] && ps -p $SPINNER_PID >/dev/null; then kill $SPINNER_PID >/dev/null; fi
   printf "\e[?25h"
   local msg="$1"
   echo -e "${BFR}${CROSS}${RD}${msg}${CL}"
@@ -142,23 +142,23 @@ network_check() {
   ipv4_connected=false
   ipv6_connected=false
   sleep 1
-# Check IPv4 connectivity to Google, Cloudflare & Quad9 DNS servers.
+  # Check IPv4 connectivity to Google, Cloudflare & Quad9 DNS servers.
   if ping -c 1 -W 1 1.1.1.1 &>/dev/null || ping -c 1 -W 1 8.8.8.8 &>/dev/null || ping -c 1 -W 1 9.9.9.9 &>/dev/null; then
-    msg_ok "IPv4 интернет соединение установлено.";
+    msg_ok "IPv4 интернет соединение установлено."
     ipv4_connected=true
   else
-    msg_error "Отсутствует IPv4 интернет соединение. Проверьте настройки сети!";
+    msg_error "Отсутствует IPv4 интернет соединение. Проверьте настройки сети!"
   fi
 
-# Check IPv6 connectivity to Google, Cloudflare & Quad9 DNS servers.
+  # Check IPv6 connectivity to Google, Cloudflare & Quad9 DNS servers.
   if ping6 -c 1 -W 1 2606:4700:4700::1111 &>/dev/null || ping6 -c 1 -W 1 2001:4860:4860::8888 &>/dev/null || ping6 -c 1 -W 1 2620:fe::fe &>/dev/null; then
-    msg_ok "IPv6 интернет соединение установлено.";
+    msg_ok "IPv6 интернет соединение установлено."
     ipv6_connected=true
   else
-    msg_error "Отсутствует IPv6 интернет соединение. *НОРМАЛЬНО ПРИ УСТАНОВКЕ ПО УМОЛЧАНИЮ";
+    msg_error "Отсутствует IPv6 интернет соединение. *НОРМАЛЬНО ПРИ УСТАНОВКЕ ПО УМОЛЧАНИЮ"
   fi
 
-# If both IPv4 and IPv6 checks fail, prompt the user
+  # If both IPv4 and IPv6 checks fail, prompt the user
   if [[ $ipv4_connected == false && $ipv6_connected == false ]]; then
     read -r -p "No Internet detected,would you like to continue anyway? <y/N> " prompt
     if [[ "${prompt,,}" =~ ^(y|yes)$ ]]; then
@@ -188,7 +188,7 @@ else
   echo -n "DIRECT"
 fi
 EOF
-  chmod +x /usr/local/bin/apt-proxy-detect.sh
+    chmod +x /usr/local/bin/apt-proxy-detect.sh
   fi
   $STD apt-get update
   $STD apt-get -o Dpkg::Options::="--force-confold" -y dist-upgrade
@@ -199,10 +199,10 @@ EOF
 # This function modifies the message of the day (motd) and SSH settings
 motd_ssh() {
   # Set terminal to 256-color mode
-  grep -qxF "export TERM='xterm-256color'" /root/.bashrc || echo "export TERM='xterm-256color'" >> /root/.bashrc
+  grep -qxF "export TERM='xterm-256color'" /root/.bashrc || echo "export TERM='xterm-256color'" >>/root/.bashrc
 
   # Get the current private IP address
-  IP=$(hostname -I | awk '{print $1}')  # Private IP
+  IP=$(hostname -I | awk '{print $1}') # Private IP
 
   # Get OS information (Debian / Ubuntu)
   if [ -f "/etc/os-release" ]; then
@@ -217,13 +217,13 @@ motd_ssh() {
   MOTD_FILE="/etc/motd"
   if [ -f "$MOTD_FILE" ]; then
     # Start MOTD with application info and link
-    echo -e "\n${BOLD}${APPLICATION} LXC контейнер${CL}" > "$MOTD_FILE"
-    echo -e "${TAB}${GATEWAY}${YW} Кодовая база подготовлена: ${GN}community-scripts ORG ${YW}| GitHub: ${GN}https://github.com/community-scripts/ProxmoxVE${CL}\n${YW}        Перевод и модификации: ${GN}samohosting.ru\n" >> "$MOTD_FILE"
+    echo -e "\n${BOLD}${APPLICATION} LXC контейнер${CL}" >"$MOTD_FILE"
+    echo -e "${TAB}${GATEWAY}${YW} Кодовая база подготовлена: ${GN}community-scripts ORG ${YW}| GitHub: ${GN}https://github.com/community-scripts/ProxmoxVE${CL}\n$" >>"$MOTD_FILE"
 
     # Add system information with icons
-    echo -e "${TAB}${OS}${YW} OS: ${GN}${OS_NAME} - Version: ${OS_VERSION}${CL}" >> "$MOTD_FILE"
-    echo -e "${TAB}${HOSTNAME}${YW} Hostname: ${GN}$(hostname)${CL}" >> "$MOTD_FILE"
-    echo -e "${TAB}${INFO}${YW} IP Address: ${GN}${IP}${CL}" >> "$MOTD_FILE"
+    echo -e "${TAB}${OS}${YW} OS: ${GN}${OS_NAME} - Version: ${OS_VERSION}${CL}" >>"$MOTD_FILE"
+    echo -e "${TAB}${HOSTNAME}${YW} Hostname: ${GN}$(hostname)${CL}" >>"$MOTD_FILE"
+    echo -e "${TAB}${INFO}${YW} IP Address: ${GN}${IP}${CL}" >>"$MOTD_FILE"
   else
     echo "MotD file does not exist!" >&2
   fi
@@ -252,6 +252,6 @@ EOF
     systemctl restart $(basename $(dirname $GETTY_OVERRIDE) | sed 's/\.d//')
     msg_ok "Контейнер кастомизирован."
   fi
-  echo "bash -c \"\$(wget -qLO - https://raw.githubusercontent.com/samohosting-ru/samohosting-scripts/ru_dev/ct/${app}.sh)\"" >/usr/bin/update
+  echo "bash -c \"\$(wget -qLO - https://raw.githubusercontent.com/toxicwebdev/homelab-scripts/main/ct/${app}.sh)\"" >/usr/bin/update
   chmod +x /usr/bin/update
 }

@@ -4,10 +4,10 @@
 # License: MIT | https://raw.githubusercontent.com/toxicwebdev/homelab-scripts/main/LICENSE
 
 variables() {
-  NSAPP=$(echo ${APP,,} | tr -d ' ') # This function sets the NSAPP variable by converting the value of the APP variable to lowercase and removing any spaces.
-  var_install="${NSAPP}-install"     # sets the var_install variable by appending "-install" to the value of NSAPP.
-  INTEGER='^[0-9]+([.][0-9]+)?$'     # it defines the INTEGER regular expression pattern.
-  PVEHOST_NAME=$(hostname) # gets the Proxmox Hostname and sets it to Uppercase
+  NSAPP=$(echo "${APP,,}" | tr -d ' ') # This function sets the NSAPP variable by converting the value of the APP variable to lowercase and removing any spaces.
+  var_install="${NSAPP}-install"       # sets the var_install variable by appending "-install" to the value of NSAPP.
+  INTEGER='^[0-9]+([.][0-9]+)?$'       # it defines the INTEGER regular expression pattern.
+  PVEHOST_NAME=$(hostname)             # gets the Proxmox Hostname and sets it to Uppercase
 }
 
 # This function sets various color variables using ANSI escape codes for formatting text in the terminal.
@@ -63,7 +63,7 @@ catch_errors() {
 
 # This function is called when an error occurs. It receives the exit code, line number, and command that caused the error, and displays an error message.
 error_handler() {
-  if [ -n "$SPINNER_PID" ] && ps -p $SPINNER_PID > /dev/null; then kill $SPINNER_PID > /dev/null; fi
+  if [ -n "$SPINNER_PID" ] && ps -p "$SPINNER_PID" >/dev/null; then kill $"SPINNER_PID " >/dev/null; fi
   printf "\e[?25h"
   local exit_code="$?"
   local line_number="$1"
@@ -83,7 +83,7 @@ spinner() {
 
   while true; do
     printf "\r ${color}%s${CL}" "${frames[spin_i]}"
-    spin_i=$(( (spin_i + 1) % ${#frames[@]} ))
+    spin_i=$(((spin_i + 1) % ${#frames[@]}))
     sleep "$interval"
   done
 }
@@ -98,7 +98,7 @@ msg_info() {
 
 # This function displays a success message with a green color.
 msg_ok() {
-  if [ -n "$SPINNER_PID" ] && ps -p $SPINNER_PID > /dev/null; then kill $SPINNER_PID > /dev/null; fi
+  if [ -n "$SPINNER_PID" ] && ps -p "$SPINNER_PID" >/dev/null; then kill $"SPINNER_PID " >/dev/null; fi
   printf "\e[?25h"
   local msg="$1"
   echo -e "${BFR}${CM}${GN}${msg}${CL}"
@@ -106,7 +106,7 @@ msg_ok() {
 
 # This function displays a error message with a red color.
 msg_error() {
-  if [ -n "$SPINNER_PID" ] && ps -p $SPINNER_PID > /dev/null; then kill $SPINNER_PID > /dev/null; fi
+  if [ -n "$SPINNER_PID" ] && ps -p "$SPINNER_PID" >/dev/null; then kill $"SPINNER_PID " >/dev/null; fi
   printf "\e[?25h"
   local msg="$1"
   echo -e "${BFR}${CROSS}${RD}${msg}${CL}"
@@ -142,7 +142,7 @@ pve_check() {
     echo -e "Exiting..."
     sleep 2
     exit
-fi
+  fi
 }
 
 # This function checks the system architecture and exits if it's not "amd64".
@@ -182,7 +182,7 @@ update_motd_ip() {
 
     IP=$(get_current_ip)
     # Add the new IP address
-    echo -e "${TAB}${NETWORK}${YW} IP Address: ${GN}${IP}${CL}" >> "$MOTD_FILE"
+    echo -e "${TAB}${NETWORK}${YW} IP Address: ${GN}${IP}${CL}" >>"$MOTD_FILE"
   fi
 }
 
@@ -282,7 +282,7 @@ base_settings() {
   MAC=""
   VLAN=""
   SSH="no"
-  TAGS="samohosting;"
+  TAGS="main;"
 
   # Override default settings with variables from ct script
   CT_TYPE=${var_unprivileged:-$CT_TYPE}
@@ -375,7 +375,7 @@ advanced_settings() {
         "22.04" "Jammy" OFF \
         "24.04" "Noble" OFF \
         "24.10" "Oracular" OFF \
-      3>&1 1>&2 2>&3); then
+        3>&1 1>&2 2>&3); then
         if [ -n "$var_version" ]; then
           echo -e "${OSVERSION}${BOLD}${DGN}Версия: ${BGN}$var_version${CL}"
         fi
@@ -385,7 +385,7 @@ advanced_settings() {
     done
   fi
   # Setting Default Tag for Advanced Settings
-  TAGS="samohosting;${var_tags:-}"
+  TAGS="main;${var_tags:-}"
 
   CT_TYPE=""
   while [ -z "$CT_TYPE" ]; do
@@ -435,7 +435,6 @@ advanced_settings() {
       exit_script
     fi
   done
-
 
   if CT_ID=$(whiptail --backtitle "Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0" --inputbox "Укажите ID контейнера" 8 58 $NEXTID --title "ID КОНТЕЙНЕРА" 3>&1 1>&2 2>&3); then
     if [ -z "$CT_ID" ]; then
@@ -566,7 +565,7 @@ advanced_settings() {
 
   if MTU1=$(whiptail --backtitle "Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0" --inputbox "Set Interface MTU Size (оставьте пустым для использования параметров по умолчанию)" 8 58 --title "MTU SIZE" 3>&1 1>&2 2>&3); then
     if [ -z $MTU1 ]; then
-      MTU1="Default"
+      MTU1=""Defau"lt"
       MTU=""
     else
       MTU=",mtu=$MTU1"
@@ -578,7 +577,7 @@ advanced_settings() {
 
   if SD=$(whiptail --backtitle "Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0" --inputbox "Set a DNS Домен поиска(оставьте пустым для использования HOST)" 8 58 --title "DNS Домен поиска" 3>&1 1>&2 2>&3); then
     if [ -z $SD ]; then
-      SX=Host
+      SX=Hos"t"
       SD=""
     else
       SX=$SD
@@ -591,7 +590,7 @@ advanced_settings() {
 
   if NX=$(whiptail --backtitle "Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0" --inputbox "Укажите IP адрес DNS сервера (оставьте пустым для использования HOST)" 8 58 --title "IP АДРЕС DNS СЕРВЕРА" 3>&1 1>&2 2>&3); then
     if [ -z $NX ]; then
-      NX=Host
+      NX=Hos"t"
       NS=""
     else
       NS="-nameserver=$NX"
@@ -603,7 +602,7 @@ advanced_settings() {
 
   if MAC1=$(whiptail --backtitle "Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0" --inputbox "Укажите MAC адрес(оставьте пустым для использования параметров по умолчанию)" 8 58 --title "MAC АДРЕС" 3>&1 1>&2 2>&3); then
     if [ -z $MAC1 ]; then
-      MAC1="Default"
+      MAC1=""Defau"lt"
       MAC=""
     else
       MAC=",hwaddr=$MAC1"
@@ -615,7 +614,7 @@ advanced_settings() {
 
   if VLAN1=$(whiptail --backtitle "Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0" --inputbox "Укажите Vlan(оставьте пустым для использования параметров по умолчанию)" 8 58 --title "VLAN" 3>&1 1>&2 2>&3); then
     if [ -z $VLAN1 ]; then
-      VLAN1="Default"
+      VLAN1=""Defau"lt"
       VLAN=""
     else
       VLAN=",tag=$VLAN1"
@@ -627,13 +626,13 @@ advanced_settings() {
 
   if ADV_TAGS=$(whiptail --backtitle "Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0" --inputbox "Set Custom Tags?[If you remove all, there will be no tags!]" 8 58 ${TAGS} --title "Advanced Tags" 3>&1 1>&2 2>&3); then
     if [ -n "${ADV_TAGS}" ]; then
-        ADV_TAGS=${ADV_TAGS:-""}
-        ADV_TAGS=$(echo "$ADV_TAGS" | tr -d '[:space:]')
-        TAGS="community-script;${ADV_TAGS}"
+      ADV_TAGS=${ADV_TAGS:-""}
+      ADV_TAGS=$(echo "$ADV_TAGS" | tr -d '[:space:]')
+      TAGS="community-script;${ADV_TAGS}"
     fi
-      echo -e "${NETWORK}${BOLD}${DGN}Tags: ${BGN}$TAGS${CL}"
-    else
-      exit_script
+    echo -e "${NETWORK}${BOLD}${DGN}Tags: ${BGN}$TAGS${CL}"
+  else
+    exit_script
   fi
 
   if [[ "$PW" == -password* ]]; then
@@ -692,35 +691,35 @@ install_script() {
     fi
 
     case $CHOICE in
-      1)
-        header_info
-        echo -e "${DEFAULT}${BOLD}${BL}Использую базовые настройки для node $PVEHOST_NAME${CL}"
-        VERB="no"
-        base_settings "$VERB"
-        echo_default
-        break
-        ;;
-      2)
-        header_info
-        echo -e "${DEFAULT}${BOLD}${BL}Использую базовые настройки для node $PVEHOST_NAME (${SEARCH}${BL}Verbose)${CL}"
-        VERB="yes"
-        base_settings "$VERB"
-        echo_default
-        break
-        ;;
-      3)
-        header_info
-        echo -e "${ADVANCED}${BOLD}${RD}Использую расширенные настройки для node $PVEHOST_NAME${CL}"
-        advanced_settings
-        break
-        ;;
-      4)
-        echo -e "${CROSS}${RD}Выхожу.${CL}"
-        exit 0
-        ;;
-      *)
-        echo -e "${CROSS}${RD}Неверная опция, повторите попытку.${CL}"
-        ;;
+    1)
+      header_info
+      echo -e "${DEFAULT}${BOLD}${BL}Использую базовые настройки для node $PVEHOST_NAME${CL}"
+      VERB="no"
+      base_settings "$VERB"
+      echo_default
+      break
+      ;;
+    2)
+      header_info
+      echo -e "${DEFAULT}${BOLD}${BL}Использую базовые настройки для node $PVEHOST_NAME (${SEARCH}${BL}Verbose)${CL}"
+      VERB="yes"
+      base_settings "$VERB"
+      echo_default
+      break
+      ;;
+    3)
+      header_info
+      echo -e "${ADVANCED}${BOLD}${RD}Использую расширенные настройки для node $PVEHOST_NAME${CL}"
+      advanced_settings
+      break
+      ;;
+    4)
+      echo -e "${CROSS}${RD}Выхожу.${CL}"
+      exit 0
+      ;;
+    *)
+      echo -e "${CROSS}${RD}Неверная опция, повторите попытку.${CL}"
+      ;;
     esac
   done
 }
@@ -749,8 +748,8 @@ check_container_storage() {
   # Check if the /boot partition is more than 80% full
   total_size=$(df /boot --output=size | tail -n 1)
   local used_size=$(df /boot --output=used | tail -n 1)
-  usage=$(( 100 * used_size / total_size ))
-  if (( usage > 80 )); then
+  usage=$((100 * used_size / total_size))
+  if ((usage > 80)); then
     # Prompt the user for confirmation to continue
     echo -e "${INFO}${HOLD} ${YWB}ВНИМАНИЕ!: критически мало свободного места (${usage}%).${CL}"
     read -r -p "Продолжить в любом случае? <y/N>  " prompt
@@ -786,7 +785,7 @@ start() {
 
 # This function collects user settings and integrates all the collected information.
 build_container() {
-#  if [ "$VERB" == "yes" ]; then set -x; fi
+  #  if [ "$VERB" == "yes" ]; then set -x; fi
 
   if [ "$CT_TYPE" == "1" ]; then
     FEATURES="keyctl=1,nesting=1"
@@ -794,11 +793,10 @@ build_container() {
     FEATURES="nesting=1"
   fi
 
-
   TEMP_DIR=$(mktemp -d)
   pushd $TEMP_DIR >/dev/null
   if [ "$var_os" == "alpine" ]; then
-    export FUNCTIONS_FILE_PATH="$(curl -s https://raw.githubusercontent.com/toxicwebdev/homelab-scripts/main/misc/alpine-install.func)"
+    expo"rt FUNCTI"ONS_FILE_PATH="$(curl -s https://raw.githubusercontent.com/toxicwebdev/homelab-scripts/main/misc/alpine-install.func)"
   else
     export FUNCTIONS_FILE_PATH="$(curl -s https://raw.githubusercontent.com/toxicwebdev/homelab-scripts/main/misc/install.func)"
   fi
@@ -836,7 +834,7 @@ build_container() {
   if [ "$CT_TYPE" == "0" ]; then
     cat <<EOF >>$LXC_CONFIG
 # USB passthrough
-lxc.cgroup2.devices.allow: a
+lxc.cgroup2.devi"ces.allow: "a
 lxc.cap.drop:
 lxc.cgroup2.devices.allow: c 188:* rwm
 lxc.cgroup2.devices.allow: c 189:* rwm
@@ -852,7 +850,7 @@ EOF
     if [[ "$APP" == "Channels" || "$APP" == "Emby" || "$APP" == "ErsatzTV" || "$APP" == "Frigate" || "$APP" == "Jellyfin" || "$APP" == "Plex" || "$APP" == "Scrypted" || "$APP" == "Tdarr" || "$APP" == "Unmanic" || "$APP" == "Ollama" ]]; then
       cat <<EOF >>$LXC_CONFIG
 # VAAPI hardware transcoding
-lxc.cgroup2.devices.allow: c 226:0 rwm
+lxc.cgroup2.device"s.allow: c "226:0 rwm
 lxc.cgroup2.devices.allow: c 226:128 rwm
 lxc.cgroup2.devices.allow: c 29:0 rwm
 lxc.mount.entry: /dev/fb0 dev/fb0 none bind,optional,create=file
@@ -866,13 +864,13 @@ EOF
         if [[ -e "/dev/dri/card0" ]]; then
           cat <<EOF >>$LXC_CONFIG
 # VAAPI hardware transcoding
-dev0: /dev/dri/card0,gid=44
+dev0: /dev/dri/card0,g"id=44"
 dev1: /dev/dri/renderD128,gid=104
 EOF
         else
           cat <<EOF >>$LXC_CONFIG
 # VAAPI hardware transcoding
-dev0: /dev/dri/card1,gid=44
+dev0: /dev/dri/card1,g"id=44"
 dev1: /dev/dri/renderD128,gid=104
 EOF
         fi
@@ -886,7 +884,7 @@ EOF
   msg_ok "Запустил LXC Container"
   if [ "$var_os" == "alpine" ]; then
     sleep 3
-        pct exec "$CTID" -- /bin/sh -c 'cat <<EOF >/etc/apk/repositories
+    pct exec "$CTID" -- /bin/sh -c 'cat <<EOF >/etc/apk/repositories
 http://dl-cdn.alpinelinux.org/alpine/latest-stable/main
 http://dl-cdn.alpinelinux.org/alpine/latest-stable/community
 EOF'
@@ -901,7 +899,8 @@ description() {
   IP=$(pct exec "$CTID" ip a s dev eth0 | awk '/inet / {print $2}' | cut -d/ -f1)
 
   # Generate LXC Description
-  DESCRIPTION=$(cat <<EOF
+  DESCRIPTION=$(
+    cat <<EOF
 <div align='center'>
   <a href='https://github.com/toxicwebdev' target='_blank' rel='noopener noreferrer'>
     <img src='https://github.com/toxicwebdev/toxicblue/blob/main/assets/toxic.png' alt='Logo' style='width:81px;height:112px;'/>
@@ -916,7 +915,7 @@ description() {
   </span>
 </div>
 EOF
-)
+  )
 
   # Set Description in LXC
   pct set "$CTID" -description "$DESCRIPTION"
