@@ -16,7 +16,7 @@ function header_info {
 EOF
 }
 header_info
-echo -e "\n Loading..."
+echo -e "\n Загрузка..."
 GEN_MAC=02:$(openssl rand -hex 5 | awk '{print toupper($0)}' | sed 's/\(..\)/\1:/g; s/.$//')
 NEXTID=$(pvesh get /cluster/nextid)
 
@@ -40,7 +40,7 @@ function error_handler() {
   local exit_code="$?"
   local line_number="$1"
   local command="$2"
-  local error_message="${RD}[ERROR]${CL} in line ${RD}$line_number${CL}: exit code ${RD}$exit_code${CL}: while executing command ${YW}$command${CL}"
+  local error_message="${RD}[ОШИБКА]${CL} в строке ${RD}$line_number${CL}: код завершился ${RD}$exit_code${CL}: при выполнении команды ${YW}$command${CL}"
   echo -e "\n$error_message\n"
   cleanup_vmid
 }
@@ -59,10 +59,10 @@ function cleanup() {
 
 TEMP_DIR=$(mktemp -d)
 pushd $TEMP_DIR >/dev/null
-if whiptail --backtitle Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0 --title "Debian 12 VM" --yesno "This will create a New Debian 12 VM. Proceed?" 10 58; then
+if whiptail --backtitle Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0 --title "Debian 12 VM" --yesno "Это создаст новую виртуальную машину Debian 12. Продолжить?" 10 58; then
   :
 else
-  header_info && echo -e "⚠ User exited script \n" && exit
+  header_info && echo -e "⚠ Пользователь вышел из скрипта \n" && exit
 fi
 
 function msg_info() {
@@ -92,9 +92,9 @@ function check_root() {
 
 function pve_check() {
   if ! pveversion | grep -Eq "pve-manager/8.[1-3]"; then
-    msg_error "This version of Proxmox Virtual Environment is not supported"
+    msg_error "Эта версия Proxmox Virtual Environment не поддерживается"
     echo -e "Требуется Proxmox Virtual Environment версии 8.1 и выше."
-    echo -e "Exiting..."
+    echo -e "Выход..."
     sleep 2
     exit
 fi
@@ -102,8 +102,8 @@ fi
 
 function arch_check() {
   if [ "$(dpkg --print-architecture)" != "amd64" ]; then
-    msg_error "This script will not work with PiMox! \n"
-    echo -e "Exiting..."
+    msg_error "Этот скрипт не будет работать с PiMox! \n"
+    echo -e "Выход..."
     sleep 2
     exit
   fi
@@ -112,8 +112,8 @@ function arch_check() {
 function ssh_check() {
   if command -v pveversion >/dev/null 2>&1; then
     if [ -n "${SSH_CLIENT:+x}" ]; then
-      if whiptail --backtitle Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0 --defaultno --title "Обнаружено подключение по SSH" --yesno "It's suggested to use the Proxmox shell instead of SSH, since SSH can create issues while gathering variables. Would you like to proceed with using SSH?" 10 62; then
-        echo "you've been warned"
+      if whiptail --backtitle Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0 --defaultno --title "Обнаружено подключение по SSH" --yesno "Рекомендуется использовать проксимный терминал вместо SSH, так как SSH может создавать проблемы при сборе переменных. Хотите продолжить использование SSH?" 10 62; then
+        echo "Вы были предупреждены"
       else
         clear
         exit
@@ -124,7 +124,7 @@ function ssh_check() {
 
 function exit-script() {
   clear
-  echo -e "⚠  User exited script \n"
+  echo -e "⚠  Пользователь вышел из скрипта \n"
   exit
 }
 
@@ -142,49 +142,49 @@ function default_settings() {
   VLAN=""
   MTU=""
   START_VM="yes"
-  echo -e "${DGN}Using Virtual Machine ID: ${BGN}${VMID}${CL}"
-  echo -e "${DGN}Using Machine Type: ${BGN}i440fx${CL}"
-  echo -e "${DGN}Using Disk Cache: ${BGN}None${CL}"
-  echo -e "${DGN}Using Hostname: ${BGN}${HN}${CL}"
-  echo -e "${DGN}Using CPU Model: ${BGN}KVM64${CL}"
-  echo -e "${DGN}Allocated Cores: ${BGN}${CORE_COUNT}${CL}"
-  echo -e "${DGN}Allocated RAM: ${BGN}${RAM_SIZE}${CL}"
-  echo -e "${DGN}Using Bridge: ${BGN}${BRG}${CL}"
-  echo -e "${DGN}Using MAC Address: ${BGN}${MAC}${CL}"
-  echo -e "${DGN}Using VLAN: ${BGN}Default${CL}"
-  echo -e "${DGN}Using Interface MTU Size: ${BGN}Default${CL}"
-  echo -e "${DGN}Start VM when completed: ${BGN}yes${CL}"
-  echo -e "${BL}Creating a Debian 12 VM using the above default settings${CL}"
+  echo -e "${DGN}Используемый ID виртуальной машины: ${BGN}${VMID}${CL}"
+  echo -e "${DGN}Используемый тип машины: ${BGN}i440fx${CL}"
+  echo -e "${DGN}Используемый кэш диска: ${BGN}None${CL}"
+  echo -e "${DGN}Используемый Hostname: ${BGN}${HN}${CL}"
+  echo -e "${DGN}Используемая модель CPU: ${BGN}KVM64${CL}"
+  echo -e "${DGN}Количество ядер CPU: ${BGN}${CORE_COUNT}${CL}"
+  echo -e "${DGN}Размер RAM: ${BGN}${RAM_SIZE}${CL}"
+  echo -e "${DGN}Используемый Мост: ${BGN}${BRG}${CL}"
+  echo -e "${DGN}Используемый MAC-адрес: ${BGN}${MAC}${CL}"
+  echo -e "${DGN}Используемый VLAN: ${BGN}Default${CL}"
+  echo -e "${DGN}Используемый размер MTU интерфейса: ${BGN}Default${CL}"
+  echo -e "${DGN}Запуск ВМ при завершении: ${BGN}yes${CL}"
+  echo -e "${BL}Создание Debian 12 VM с использованием вышеуказанных стандартных настроек${CL}"
 }
 
 function advanced_settings() {
   while true; do
-    if VMID=$(whiptail --backtitle Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0 --inputbox "Set Virtual Machine ID" 8 58 $NEXTID --title "VIRTUAL MACHINE ID" --cancel-button Exit-Script 3>&1 1>&2 2>&3); then
+    if VMID=$(whiptail --backtitle Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0 --inputbox "Укажите ID виртуальной машины" 8 58 $NEXTID --title "ID ВИРТУАЛЬНОЙ МАШИНЫ" --cancel-button Выход 3>&1 1>&2 2>&3); then
       if [ -z "$VMID" ]; then
         VMID="$NEXTID"
       fi
       if pct status "$VMID" &>/dev/null || qm status "$VMID" &>/dev/null; then
-        echo -e "${CROSS}${RD} ID $VMID is already in use${CL}"
+        echo -e "${CROSS}${RD} ID $VMID уже используется${CL}"
         sleep 2
         continue
       fi
-      echo -e "${DGN}Virtual Machine ID: ${BGN}$VMID${CL}"
+      echo -e "${DGN}ID виртуальной машины: ${BGN}$VMID${CL}"
       break
     else
       exit-script
     fi
   done
 
-  if MACH=$(whiptail --backtitle Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0 --title "MACHINE TYPE" --radiolist --cancel-button Exit-Script "Choose Type" 10 58 2 \
-    "i440fx" "Machine i440fx" ON \
-    "q35" "Machine q35" OFF \
+  if MACH=$(whiptail --backtitle Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0 --title "ТИП МАШИНЫ" --radiolist --cancel-button Exit-Script "Выберите тип" 10 58 2 \
+    "i440fx" "Машина i440fx" ON \
+    "q35" "Машина q35" OFF \
     3>&1 1>&2 2>&3); then
     if [ $MACH = q35 ]; then
-      echo -e "${DGN}Using Machine Type: ${BGN}$MACH${CL}"
+      echo -e "${DGN}Используемый тип машины: ${BGN}$MACH${CL}"
       FORMAT=""
       MACHINE=" -machine q35"
     else
-      echo -e "${DGN}Using Machine Type: ${BGN}$MACH${CL}"
+      echo -e "${DGN}Используемый тип машины: ${BGN}$MACH${CL}"
       FORMAT=",efitype=4m"
       MACHINE=""
     fi
@@ -192,15 +192,15 @@ function advanced_settings() {
     exit-script
   fi
 
-  if DISK_CACHE=$(whiptail --backtitle Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0 --title "DISK CACHE" --radiolist "Choose" --cancel-button Exit-Script 10 58 2 \
-    "0" "None (Default)" ON \
+  if DISK_CACHE=$(whiptail --backtitle Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0 --title "КЭШ ДИСКА" --radiolist "Выберите" --cancel-button Exit-Script 10 58 2 \
+    "0" "Нет (По умолчанию)" ON \
     "1" "Write Through" OFF \
     3>&1 1>&2 2>&3); then
     if [ $DISK_CACHE = "1" ]; then
-      echo -e "${DGN}Using Disk Cache: ${BGN}Write Through${CL}"
+      echo -e "${DGN}Используемый кэш диска: ${BGN}Write Through${CL}"
       DISK_CACHE="cache=writethrough,"
     else
-      echo -e "${DGN}Using Disk Cache: ${BGN}None${CL}"
+      echo -e "${DGN}Используемый кэш диска: ${BGN}None${CL}"
       DISK_CACHE=""
     fi
   else
@@ -210,24 +210,24 @@ function advanced_settings() {
   if VM_NAME=$(whiptail --backtitle Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0 --inputbox "Укажите имя хоста(hostname)" 8 58 debian --title "ИМЯ ХОСТА(HOSTNAME)" --cancel-button Exit-Script 3>&1 1>&2 2>&3); then
     if [ -z $VM_NAME ]; then
       HN="debian"
-      echo -e "${DGN}Using Hostname: ${BGN}$HN${CL}"
+      echo -e "${DGN}Используемый Hostname: ${BGN}$HN${CL}"
     else
       HN=$(echo ${VM_NAME,,} | tr -d ' ')
-      echo -e "${DGN}Using Hostname: ${BGN}$HN${CL}"
+      echo -e "${DGN}Используемый Hostname: ${BGN}$HN${CL}"
     fi
   else
     exit-script
   fi
 
-  if CPU_TYPE1=$(whiptail --backtitle Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0 --title "CPU MODEL" --radiolist "Choose" --cancel-button Exit-Script 10 58 2 \
-    "0" "KVM64 (Default)" ON \
+  if CPU_TYPE1=$(whiptail --backtitle Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0 --title "ТИП ПРОЦЕССОРА" --radiolist "Выберите" --cancel-button Exit-Script 10 58 2 \
+    "0" "KVM64 (По умолчанию)" ON \
     "1" "Host" OFF \
     3>&1 1>&2 2>&3); then
     if [ $CPU_TYPE1 = "1" ]; then
-      echo -e "${DGN}Using CPU Model: ${BGN}Host${CL}"
+      echo -e "${DGN}Используемая модель CPU: ${BGN}Host${CL}"
       CPU_TYPE=" -cpu host"
     else
-      echo -e "${DGN}Using CPU Model: ${BGN}KVM64${CL}"
+      echo -e "${DGN}Используемая модель CPU: ${BGN}KVM64${CL}"
       CPU_TYPE=""
     fi
   else
@@ -237,9 +237,9 @@ function advanced_settings() {
   if CORE_COUNT=$(whiptail --backtitle Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0 --inputbox "Укажите кол-во процессорных ядер(CPU count)" 8 58 2 --title "КОЛИЧЕСТВО ПРОЦЕССОРНЫХ ЯДЕР(CPU COUNT)" --cancel-button Exit-Script 3>&1 1>&2 2>&3); then
     if [ -z $CORE_COUNT ]; then
       CORE_COUNT="2"
-      echo -e "${DGN}Allocated Cores: ${BGN}$CORE_COUNT${CL}"
+      echo -e "${DGN}Количество ядер CPU: ${BGN}$CORE_COUNT${CL}"
     else
-      echo -e "${DGN}Allocated Cores: ${BGN}$CORE_COUNT${CL}"
+      echo -e "${DGN}Количество ядер CPU: ${BGN}$CORE_COUNT${CL}"
     fi
   else
     exit-script
@@ -248,9 +248,9 @@ function advanced_settings() {
   if RAM_SIZE=$(whiptail --backtitle Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0 --inputbox "Укажите ОЗУ в MiB" 8 58 2048 --title "ОЗУ" --cancel-button Exit-Script 3>&1 1>&2 2>&3); then
     if [ -z $RAM_SIZE ]; then
       RAM_SIZE="2048"
-      echo -e "${DGN}Allocated RAM: ${BGN}$RAM_SIZE${CL}"
+      echo -e "${DGN}Размер RAM: ${BGN}$RAM_SIZE${CL}"
     else
-      echo -e "${DGN}Allocated RAM: ${BGN}$RAM_SIZE${CL}"
+      echo -e "${DGN}Размер RAM: ${BGN}$RAM_SIZE${CL}"
     fi
   else
     exit-script
@@ -259,21 +259,21 @@ function advanced_settings() {
   if BRG=$(whiptail --backtitle Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0 --inputbox "Укажите сетевой мост(bridge)" 8 58 vmbr0 --title "СЕТЕВОЙ МОСТ(BRIDGE)" --cancel-button Exit-Script 3>&1 1>&2 2>&3); then
     if [ -z $BRG ]; then
       BRG="vmbr0"
-      echo -e "${DGN}Using Bridge: ${BGN}$BRG${CL}"
+      echo -e "${DGN}Используемый Мост: ${BGN}$BRG${CL}"
     else
-      echo -e "${DGN}Using Bridge: ${BGN}$BRG${CL}"
+      echo -e "${DGN}Используемый Мост: ${BGN}$BRG${CL}"
     fi
   else
     exit-script
   fi
 
-  if MAC1=$(whiptail --backtitle Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0 --inputbox "Set a MAC Address" 8 58 $GEN_MAC --title "MAC АДРЕС" --cancel-button Exit-Script 3>&1 1>&2 2>&3); then
+  if MAC1=$(whiptail --backtitle Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0 --inputbox "Настройка MAC адресса" 8 58 $GEN_MAC --title "MAC АДРЕС" --cancel-button Exit-Script 3>&1 1>&2 2>&3); then
     if [ -z $MAC1 ]; then
       MAC="$GEN_MAC"
-      echo -e "${DGN}Using MAC Address: ${BGN}$MAC${CL}"
+      echo -e "${DGN}Используемый MAC Address: ${BGN}$MAC${CL}"
     else
       MAC="$MAC1"
-      echo -e "${DGN}Using MAC Address: ${BGN}$MAC1${CL}"
+      echo -e "${DGN}Используемый MAC Address: ${BGN}$MAC1${CL}"
     fi
   else
     exit-script
@@ -283,10 +283,10 @@ function advanced_settings() {
     if [ -z $VLAN1 ]; then
       VLAN1="Default"
       VLAN=""
-      echo -e "${DGN}Using Vlan: ${BGN}$VLAN1${CL}"
+      echo -e "${DGN}Используемый Vlan: ${BGN}$VLAN1${CL}"
     else
       VLAN=",tag=$VLAN1"
-      echo -e "${DGN}Using Vlan: ${BGN}$VLAN1${CL}"
+      echo -e "${DGN}Используемый Vlan: ${BGN}$VLAN1${CL}"
     fi
   else
     exit-script
@@ -296,40 +296,40 @@ function advanced_settings() {
     if [ -z $MTU1 ]; then
       MTU1="Default"
       MTU=""
-      echo -e "${DGN}Using Interface MTU Size: ${BGN}$MTU1${CL}"
+      echo -e "${DGN}Используемый размер MTU интерфейса: ${BGN}$MTU1${CL}"
     else
       MTU=",mtu=$MTU1"
-      echo -e "${DGN}Using Interface MTU Size: ${BGN}$MTU1${CL}"
+      echo -e "${DGN}Используемый размер MTU интерфейса: ${BGN}$MTU1${CL}"
     fi
   else
     exit-script
   fi
 
-  if (whiptail --backtitle Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0 --title "START VIRTUAL MACHINE" --yesno "Start VM when completed?" 10 58); then
-    echo -e "${DGN}Start VM when completed: ${BGN}yes${CL}"
+  if (whiptail --backtitle Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0 --title "START VIRTUAL MACHINE" --yesno "Запуск ВМ при завершении?" 10 58); then
+    echo -e "${DGN}Запуск ВМ при завершении: ${BGN}yes${CL}"
     START_VM="yes"
   else
-    echo -e "${DGN}Start VM when completed: ${BGN}no${CL}"
+    echo -e "${DGN}Запуск ВМ при завершении: ${BGN}no${CL}"
     START_VM="no"
   fi
 
-  if (whiptail --backtitle Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0 --title "РАСШИРЕННЫЕ НАСТРОЙКИ ЗАВЕРШЕНЫ" --yesno "Ready to create a Debian 12 VM?" --no-button Do-Over 10 58); then
-    echo -e "${RD}Creating a Debian 12 VM using the above advanced settings${CL}"
+  if (whiptail --backtitle Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0 --title "РАСШИРЕННЫЕ НАСТРОЙКИ ЗАВЕРШЕНЫ" --yesno " Готовы к созданию Debian 12 VM?" --no-button Do-Over 10 58); then
+    echo -e "${RD}Создание Debian 12 VM с использованием вышеуказанных расширенных настроек${CL}"
   else
     header_info
-    echo -e "${RD}Using Advanced Settings${CL}"
+    echo -e "${RD}Используются расширенные настройки${CL}"
     advanced_settings
   fi
 }
 
 function start_script() {
-  if (whiptail --backtitle Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0 --title "НАСТРОЙКИ" --yesno "Use Default Settings?" --no-button Advanced 10 58); then
+  if (whiptail --backtitle Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0 --title "НАСТРОЙКИ" --yesno "Использовать стандартные настройки?" --no-button Advanced 10 58); then
     header_info
-    echo -e "${BL}Using Default Settings${CL}"
+    echo -e "${BL}Используются стандартные настройки${CL}"
     default_settings
   else
     header_info
-    echo -e "${RD}Using Advanced Settings${CL}"
+    echo -e "${RD}Используются расширенные настройки${CL}"
     advanced_settings
   fi
 }
@@ -354,28 +354,28 @@ while read -r line; do
 done < <(pvesm status -content images | awk 'NR>1')
 VALID=$(pvesm status -content images | awk 'NR>1')
 if [ -z "$VALID" ]; then
-  msg_error "Unable to detect a valid storage location."
+  msg_error "Не удается обнаружить действительное место хранения."
   exit
 elif [ $((${#STORAGE_MENU[@]} / 3)) -eq 1 ]; then
   STORAGE=${STORAGE_MENU[0]}
 else
   while [ -z "${STORAGE:+x}" ]; do
     STORAGE=$(whiptail --backtitle Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0 --title "ХРАНИЛИЩЕ ДЛЯ ДАННЫХ" --radiolist \
-      "Which storage pool you would like to use for ${HN}?\nTo make a selection, use the Spacebar.\n" \
+      "Какой пул хранения вы хотели бы использовать ${HN}?\nЧтобы сделать выбор, используйте пробел.\n" \
       16 $(($MSG_MAX_LENGTH + 23)) 6 \
       "${STORAGE_MENU[@]}" 3>&1 1>&2 2>&3) || exit
   done
 fi
-msg_ok "Using ${CL}${BL}$STORAGE${CL} ${GN}for Storage Location."
-msg_ok "Virtual Machine ID is ${CL}${BL}$VMID${CL}."
-msg_info "Retrieving the URL for the Debian 12 Qcow2 Disk Image"
+msg_ok "Используется ${CL}${BL}$STORAGE${CL} ${GN}для места хранения."
+msg_ok "Virtual Machine ID ${CL}${BL}$VMID${CL}."
+msg_info "Запрос на получение URL для образа диска Qcow2 Debian 12"
 URL=https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-nocloud-amd64.qcow2
 sleep 2
 msg_ok "${CL}${BL}${URL}${CL}"
 wget -q --show-progress $URL
 echo -en "\e[1A\e[0K"
 FILE=$(basename $URL)
-msg_ok "Downloaded ${CL}${BL}${FILE}${CL}"
+msg_ok "Загрузка ${CL}${BL}${FILE}${CL}"
 
 STORAGE_TYPE=$(pvesm status -storage $STORAGE | awk 'NR>1 {print $2}')
 case $STORAGE_TYPE in
@@ -399,7 +399,7 @@ for i in {0,1}; do
   eval DISK${i}_REF=${STORAGE}:${DISK_REF:-}${!disk}
 done
 
-msg_info "Creating a Debian 12 VM"
+msg_info "Создание Debian 12 VM"
 qm create $VMID -agent 1${MACHINE} -tablet 0 -localtime 1 -bios ovmf${CPU_TYPE} -cores $CORE_COUNT -memory $RAM_SIZE \
   -name $HN -tags proxmox-helper-scripts -net0 virtio,bridge=$BRG,macaddr=$MAC$VLAN$MTU -onboot 1 -ostype l26 -scsihw virtio-scsi-pci
 pvesm alloc $STORAGE $VMID $DISK0 4M 1>&/dev/null
@@ -415,7 +415,7 @@ qm set $VMID \
   </div>" >/dev/null
 qm resize $VMID scsi0 4G >/dev/null
 
-msg_ok "Created a Debian 12 VM ${CL}${BL}(${HN})"
+msg_ok "Создание Debian 12 VM ${CL}${BL}(${HN})"
 if [ "$START_VM" == "yes" ]; then
   msg_info "Запускаю Debian 12 VM"
   qm start $VMID

@@ -32,7 +32,7 @@ function update_script() {
         msg_error "Отсутствует установленная версия ${APP}"
         exit
     fi
-    msg_error "Adguard Home should be updated via the user interface."
+    msg_error "Adguard Home должен быть обновлен через пользовательский интерфейс."
     exit
 }
 

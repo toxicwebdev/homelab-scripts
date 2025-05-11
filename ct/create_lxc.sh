@@ -111,7 +111,7 @@ function select_storage() {
     CONTENT='vztmpl'
     CONTENT_LABEL='Container template'
     ;;
-  *) false || exit "Invalid storage class." ;;
+  *) false || exit "Неверный класс хранилища." ;;
   esac
 
   # This Queries all storage locations
@@ -134,10 +134,10 @@ function select_storage() {
   else
     local STORAGE
     while [ -z "${STORAGE:+x}" ]; do
-      STORAGE=$(whiptail --backtitle Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0 --title "ХРАНИЛИЩЕ ДЛЯ ДАННЫХ" --radiolist \
-      "Which storage pool you would like to use for the ${CONTENT_LABEL,,}?\nTo make a selection, use the ПРОБЕЛ.\n" \
+      STORAGE=$(whiptail --backtitle "Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0" --title "ХРАНИЛИЩЕ ДЛЯ ДАННЫХ" --radiolist \
+      "Какое хранилище вы хотите использовать для ${CONTENT_LABEL,,}?\nЧтобы сделать выбор, используйте ПРОБЕЛ.\n" \
       16 $(($MSG_MAX_LENGTH + 23)) 6 \
-      "${MENU[@]}" 3>&1 1>&2 2>&3) || exit "Menu aborted."
+      "${MENU[@]}" 3>&1 1>&2 2>&3) || exit "Меню отменено пользователем."
       if [ $? -ne 0 ]; then
         echo -e "${CROSS}${RD} Меню отменено пользователем.${CL}"
         exit 0
@@ -147,15 +147,15 @@ function select_storage() {
   fi
 }
 # Test if required variables are set
-[[ "${CTID:-}" ]] || exit "You need to set 'CTID' variable."
-[[ "${PCT_OSTYPE:-}" ]] || exit "You need to set 'PCT_OSTYPE' variable."
+[[ "${CTID:-}" ]] || exit "Вы должны установить 'CTID' переменную."
+[[ "${PCT_OSTYPE:-}" ]] || exit "Вы должны установить 'PCT_OSTYPE' переменную."
 
 # Test if ID is valid
-[ "$CTID" -ge "100" ] || exit "ID cannot be less than 100."
+[ "$CTID" -ge "100" ] || exit "ID не может быть меньше 100."
 
 # Test if ID is in use
 if pct status $CTID &>/dev/null; then
-  echo -e "ID '$CTID' is already in use."
+  echo -e "ID '$CTID' уже используется."
   unset CTID
   exit "Не могу использовать ID который уже занят другим контейнером."
 fi
@@ -176,14 +176,14 @@ msg_ok "Обновлен список LXC шаблонов."
 # Get LXC template string
 TEMPLATE_SEARCH=${PCT_OSTYPE}-${PCT_OSVERSION:-}
 mapfile -t TEMPLATES < <(pveam available -section system | sed -n "s/.*\($TEMPLATE_SEARCH.*\)/\1/p" | sort -t - -k 2 -V)
-[ ${#TEMPLATES[@]} -gt 0 ] || exit "Unable to find a template when searching for '$TEMPLATE_SEARCH'."
+[ ${#TEMPLATES[@]} -gt 0 ] || exit "Не удалось найти шаблон при поиске '$TEMPLATE_SEARCH'."
 TEMPLATE="${TEMPLATES[-1]}"
 
 # Download LXC template if needed
 if ! pveam list $TEMPLATE_STORAGE | grep -q $TEMPLATE; then
   msg_info "Скачиваю LXC шаблон"
   pveam download $TEMPLATE_STORAGE $TEMPLATE >/dev/null ||
-    exit "A problem occured while downloading the LXC template."
+    exit "Возникла проблема при скачивании LXC шаблона."
   msg_ok "Скачиваю LXC шаблон"
 fi
 

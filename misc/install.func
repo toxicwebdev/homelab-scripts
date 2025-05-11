@@ -60,7 +60,7 @@ error_handler() {
   local exit_code="$?"
   local line_number="$1"
   local command="$2"
-  local error_message="${RD}[ERROR]${CL} in line ${RD}$line_number${CL}: exit code ${RD}$exit_code${CL}: while executing command ${YW}$command${CL}"
+  local error_message="${RD}[ОШИБКА]${CL} в строке ${RD}$line_number${CL}: код завершился ${RD}$exit_code${CL}: при выполнении команды ${YW}$command${CL}"
   echo -e "\n$error_message"
   if [[ "$line_number" -eq 23 ]]; then
     echo -e "В процессе тихой установки случились ошибки, включен режим отладки для более детализированого вывода событий в терминал.\n"
@@ -160,7 +160,7 @@ network_check() {
 
   # If both IPv4 and IPv6 checks fail, prompt the user
   if [[ $ipv4_connected == false && $ipv6_connected == false ]]; then
-    read -r -p "No Internet detected,would you like to continue anyway? <y/N> " prompt
+    read -r -p "Отсутствует интернет, продолжить все равно? <y/N> " prompt
     if [[ "${prompt,,}" =~ ^(y|yes)$ ]]; then
       echo -e "${INFO}${RD}Без доступа к интернету - ожидаются проблемы с работой скрипта${CL}"
     else
@@ -225,7 +225,7 @@ motd_ssh() {
     echo -e "${TAB}${HOSTNAME}${YW} Hostname: ${GN}$(hostname)${CL}" >>"$MOTD_FILE"
     echo -e "${TAB}${INFO}${YW} IP Address: ${GN}${IP}${CL}" >>"$MOTD_FILE"
   else
-    echo "MotD file does not exist!" >&2
+    echo "Файл MotD не существует!" >&2
   fi
 
   # Disable default MOTD scripts

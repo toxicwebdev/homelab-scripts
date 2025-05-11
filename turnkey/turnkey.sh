@@ -20,21 +20,21 @@ alias die='EXIT=$? LINE=$LINENO error_exit'
 trap die ERR
 function error_exit() {
   trap - ERR
-  local DEFAULT='Unknown failure occured.'
+  local DEFAULT='Неизвестная ошибка.'
   local REASON="\e[97m${1:-$DEFAULT}\e[39m"
-  local FLAG="\e[91m[ERROR] \e[93m$EXIT@$LINE"
+  local FLAG="\e[91m[ОШИБКА] \e[93m$EXIT@$LINE"
   msg "$FLAG $REASON" 1>&2
   [ ! -z ${CTID-} ] && cleanup_ctid
   exit $EXIT
 }
 function warn() {
   local REASON="\e[97m$1\e[39m"
-  local FLAG="\e[93m[WARNING]\e[39m"
+  local FLAG="\e[93m[ВНИМАНИЕ]\e[39m"
   msg "$FLAG $REASON"
 }
 function info() {
   local REASON="$1"
-  local FLAG="\e[36m[INFO]\e[39m"
+  local FLAG="\e[36m[ИНФОРМАЦИЯ]\e[39m"
   msg "$FLAG $REASON"
 }
 function msg() {
@@ -55,7 +55,7 @@ if systemctl is-active -q ping-instances.service; then
   systemctl stop ping-instances.service
 fi
 header_info
-whiptail --backtitle Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0 --title "TurnKey LXCs" --yesno "This will allow for the creation of one of the many TurnKey LXC Containers. Proceed?" 10 68 || exit
+whiptail --backtitle Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0 --title "TurnKey LXCs" --yesno "Это позволит создать один из множества контейнеров TurnKey LXC. Продолжить?" 10 68 || exit
 TURNKEY_MENU=()
 MSG_MAX_LENGTH=0
 while read -r TAG ITEM; do
@@ -87,10 +87,10 @@ wordpress Wordpress
 zoneminder ZoneMinder
 EOF
 )
-turnkey=$(whiptail --backtitle Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0 --title "TurnKey LXCs" --radiolist "\nSelect a TurnKey LXC to create:\n" 16 $((MSG_MAX_LENGTH + 58)) 6 "${TURNKEY_MENU[@]}" 3>&1 1>&2 2>&3 | tr -d '"') || exit
+turnkey=$(whiptail --backtitle Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0 --title "TurnKey LXCs" --radiolist "\nВыберите контейнер TurnKey LXC для создания:\n" 16 $((MSG_MAX_LENGTH + 58)) 6 "${TURNKEY_MENU[@]}" 3>&1 1>&2 2>&3 | tr -d '"') || exit
 [ -z "$turnkey" ] && {
-  whiptail --backtitle Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0 --title "No TurnKey LXC Selected" --msgbox "It appears that no TurnKey LXC container was selected" 10 68
-  msg "Done"
+  whiptail --backtitle Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0 --title "Не выбран TurnKey LXC" --msgbox "Похоже, что не был выбран контейнер TurnKey LXC" 10 68
+  msg "Готово"
   exit
 }
 
@@ -126,7 +126,7 @@ function select_storage() {
     CONTENT='vztmpl'
     CONTENT_LABEL='Container template'
     ;;
-  *) false || die "Invalid storage class." ;;
+  *) false || die "Недопустимый класс хранилища." ;;
   esac
 
   # Query all storage locations
@@ -153,7 +153,7 @@ function select_storage() {
     local STORAGE
     while [ -z "${STORAGE:+x}" ]; do
       STORAGE=$(whiptail --backtitle Proxmox VE Helper Scripts: ToxicWeb Edition v0.1.0 --title "ХРАНИЛИЩЕ ДЛЯ ДАННЫХ" --radiolist \
-        "Which storage pool you would like to use for the ${CONTENT_LABEL,,}?\n\n" \
+        "Какое хранилище вы хотите использовать для ${CONTENT_LABEL,,}?\n\n" \
         16 $(($MSG_MAX_LENGTH + 23)) 6 \
         "${MENU[@]}" 3>&1 1>&2 2>&3) || die "Меню выбора было закрыто."
     done
@@ -170,12 +170,12 @@ CONTAINER_STORAGE=$(select_storage container) || exit
 info "Использую '$CONTAINER_STORAGE' для хранения данных."
 
 # Update LXC template list
-msg "Updating LXC template list..."
+msg "Обновляю список шаблонов LXC..."
 pveam update >/dev/null
 
 # Get LXC template string
 mapfile -t TEMPLATES < <(pveam available -section turnkeylinux | awk -v turnkey="${turnkey}" '$0 ~ turnkey {print $2}' | sort -t - -k 2 -V)
-[ ${#TEMPLATES[@]} -gt 0 ] || die "Unable to find a template when searching for '${turnkey}'."
+[ ${#TEMPLATES[@]} -gt 0 ] || die "Не удалось найти шаблон при поиске '${turnkey}'."
 TEMPLATE="${TEMPLATES[-1]}"
 
 # Download LXC template

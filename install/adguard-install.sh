@@ -20,12 +20,12 @@ msg_ok "Зависимости(необходимое ПО) установлен
 
 msg_info "Устанавливаю AdGuard Home"
 $STD tar zxvf <(curl -fsSL https://static.adtidy.org/adguardhome/release/AdGuardHome_linux_amd64.tar.gz) -C /opt
-msg_ok "Installed AdGuard Home"
+msg_ok "AdGuard Home установлен"
 
-msg_info "Creating Service"
+msg_info "Создаю сервис"
 cat <<EOF >/etc/systemd/system/AdGuardHome.service
 [Unit]
-Description=AdGuard Home: Network-level blocker
+Description=AdGuard Home: Блокировка на уровне сети
 ConditionFileIsExecutable=/opt/AdGuardHome/AdGuardHome
 After=syslog.target network-online.target
 
@@ -44,12 +44,12 @@ EnvironmentFile=-/etc/sysconfig/AdGuardHome
 WantedBy=multi-user.target
 EOF
 systemctl enable -q --now AdGuardHome.service
-msg_ok "Created Service"
+msg_ok "Создан сервис"
 
 motd_ssh
 customize
 
-msg_info "Cleaning up"
+msg_info "Очистка"
 $STD apt-get -y autoremove
 $STD apt-get -y autoclean
 msg_ok "Временные файлы установки - удалены!"
